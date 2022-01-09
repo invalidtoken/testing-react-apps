@@ -28,7 +28,7 @@ test('error message is displayed properly if server fails for any reason', async
     rest.post(
       'https://auth-provider.example.com/api/login',
       async (req, res, ctx) => {
-        return res.once(
+        return res(
           ctx.status(500),
           ctx.json({message: 'INTERNAL_SERVER_ERROR'}),
         )

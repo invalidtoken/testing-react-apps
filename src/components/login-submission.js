@@ -74,6 +74,7 @@ function LoginSubmission() {
     endpoint: 'https://auth-provider.example.com/api/login',
     data: formData,
   })
+  console.log('here 3')
 
   return (
     <>
@@ -82,7 +83,13 @@ function LoginSubmission() {
           Welcome <strong>{responseData.username}</strong>
         </div>
       ) : (
-        <Login onSubmit={data => setFormData(data)} />
+        <Login
+          onSubmit={data => {
+            console.log('here 1')
+            setFormData(data)
+            console.log('here 2')
+          }}
+        />
       )}
       <div style={{height: 200}}>
         {status === 'pending' ? <Spinner /> : null}

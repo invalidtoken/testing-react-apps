@@ -20,41 +20,9 @@ const buildLoginForm = build({
 const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
+// TODO: What does this do
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
-
-test('error message is displayed properly if server fails for any reason', async () => {
-  server.use(
-    rest.post(
-      'https://auth-provider.example.com/api/login',
-      async (req, res, ctx) => {
-        return res(
-          ctx.status(500),
-          ctx.json({message: 'INTERNAL_SERVER_ERROR'}),
-        )
-      },
-    ),
-  )
-
-  render(<Login />)
-  const {username, password} = buildLoginForm()
-
-  userEvent.type(screen.getByLabelText(/username/i), username)
-  userEvent.type(screen.getByLabelText(/password/i), password)
-  userEvent.click(screen.getByRole('button', {name: /submit/i}))
-
-  await waitForElementToBeRemoved(() => screen.getByLabelText('loading...'))
-  const errorAlert = screen.getByRole('alert')
-
-  expect(errorAlert).toMatchInlineSnapshot(`
-    <div
-      role="alert"
-      style="color: red;"
-    >
-      INTERNAL_SERVER_ERROR
-    </div>
-  `)
-})
 
 test(`logging in displays the user's username`, async () => {
   render(<Login />)
@@ -63,6 +31,9 @@ test(`logging in displays the user's username`, async () => {
   userEvent.type(screen.getByLabelText(/username/i), username)
   userEvent.type(screen.getByLabelText(/password/i), password)
   userEvent.click(screen.getByRole('button', {name: /submit/i}))
+  console.log('I am here')
+
+  screen.debug()
 
   await waitForElementToBeRemoved(() => screen.getByLabelText('loading...'))
 
@@ -108,6 +79,41 @@ test(`error message is displayed when password is not passed`, async () => {
       style="color: red;"
     >
       password required
+    </div>
+  `)
+})
+
+test('error message is displayed properly if server fails for any reason', async () => {
+  // TODO: What are return handlers
+  server.use(
+    rest.post(
+      'https://auth-provider.example.com/api/login',
+      async (req, res, ctx) => {
+        // TODO: What if you don't return res or return res.once
+        return res(
+          ctx.status(500),
+          ctx.json({message: 'INTERNAL_SERVER_ERROR'}),
+        )
+      },
+    ),
+  )
+
+  render(<Login />)
+  const {username, password} = buildLoginForm()
+
+  userEvent.type(screen.getByLabelText(/username/i), username)
+  userEvent.type(screen.getByLabelText(/password/i), password)
+  userEvent.click(screen.getByRole('button', {name: /submit/i}))
+
+  await waitForElementToBeRemoved(() => screen.getByLabelText('loading...'))
+  const errorAlert = screen.getByRole('alert')
+
+  expect(errorAlert).toMatchInlineSnapshot(`
+    <div
+      role="alert"
+      style="color: red;"
+    >
+      INTERNAL_SERVER_ERROR
     </div>
   `)
 })

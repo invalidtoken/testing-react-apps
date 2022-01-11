@@ -2,21 +2,37 @@
 // http://localhost:3000/easy-button
 
 import * as React from 'react'
-import {render, screen} from '@testing-library/react'
+import {getByRole, render as rtlRender, screen} from '@testing-library/react'
 import {ThemeProvider} from '../../components/theme'
 import EasyButton from '../../components/easy-button'
+import userEvent from '@testing-library/user-event'
+
+function render(props) {
+  rtlRender(
+    <ThemeProvider {...props}>
+      <EasyButton />
+    </ThemeProvider>,
+  )
+}
+
+test('renders with the dark styles for the dark theme', () => {
+  render({initialTheme: 'dark'})
+  const button = screen.getByRole('button')
+
+  expect(button).toHaveStyle({
+    backgroundColor: 'black',
+    color: 'white',
+  })
+})
 
 test('renders with the light styles for the light theme', () => {
-  // 🐨 uncomment all of this code and your test will be busted on the next line:
-  // render(<EasyButton>Easy</EasyButton>)
-  // const button = screen.getByRole('button', {name: /easy/i})
-  // expect(button).toHaveStyle(`
-  //   background-color: white;
-  //   color: black;
-  // `)
-  //
-  // 🐨 update the `render` call above to use the wrapper option using the
-  // ThemeProvider
+  render({initialTheme: 'light'})
+  const button = screen.getByRole('button')
+
+  expect(button).toHaveStyle({
+    backgroundColor: 'white',
+    color: 'black',
+  })
 })
 
 /* eslint no-unused-vars:0 */

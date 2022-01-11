@@ -62,7 +62,11 @@ test('displays error message when geolocation is not supported', async () => {
 
   window.navigator.geolocation.getCurrentPosition.mockImplementation(
     (successCallback, errorCallback) => {
-      promise.catch(() => errorCallback(fakeError))
+      promise.catch(() => {
+        act(() => {
+          errorCallback(fakeError)
+        })
+      })
     },
   )
 
@@ -70,11 +74,11 @@ test('displays error message when geolocation is not supported', async () => {
 
   expect(screen.getByLabelText(/loading/i)).toBeInTheDocument()
 
-  await act(async () => {
+  try {
     reject()
-  })
+    await promise
+  } catch (e) {}
 
   expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument()
-
   expect(screen.getByRole('alert')).toHaveTextContent(fakeError.message)
 })

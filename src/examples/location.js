@@ -1,9 +1,9 @@
+import {useLocation} from 'components/use-location'
 import * as React from 'react'
-import {useCurrentPosition} from 'react-use-geolocation'
 import Spinner from '../components/spinner'
 
 function Location() {
-  const [position, error] = useCurrentPosition()
+  const [position, error] = useLocation()
 
   if (!position && !error) {
     return <Spinner />

@@ -38,12 +38,12 @@ test('displays the users current location', async () => {
 
   window.navigator.geolocation.getCurrentPosition.mockImplementation(
     success => {
-      // promise.then(() => {
-      // 1 way to solve this can be this
-      // act(() => {
-      success(fakePosition)
-      // })
-      // })
+      promise.then(() => {
+        // 1 way to solve this can be this
+        act(() => {
+          success(fakePosition)
+        })
+      })
     },
   )
 
@@ -55,9 +55,6 @@ test('displays the users current location', async () => {
   resolve()
   await promise
 
-  // Another way to solve the act issue can be
-  //
-
   expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument()
   expect(screen.getByText(/latitude:/i)).toHaveTextContent(
     `Latitude: ${fakePosition.coords.latitude}`,
@@ -65,4 +62,44 @@ test('displays the users current location', async () => {
   expect(screen.getByText(/longitude:/i)).toHaveTextContent(
     `Longitude: ${fakePosition.coords.longitude}`,
   )
+})
+
+test('displays error to the user', async () => {
+  const errorMessage = 'Geolocation is not supported or permission denied'
+  const fakeError = new Error(errorMessage)
+  const {promise, reject} = deferred()
+
+  window.navigator.geolocation.getCurrentPosition.mockImplementation(
+    (success, error) => {
+      promise.catch(() => {
+        // Wrap the error function inside act
+        // so that it can yield execution of assertions
+        // until all side effects aren't executed
+        act(() => {
+          error(fakeError)
+        })
+      })
+    },
+  )
+  render(<Location />)
+
+  expect(screen.getByLabelText('loading...')).toBeInTheDocument()
+
+  // option 2
+  // wrapping the reject call inside act
+  /*
+    await act(async () => {
+      try {
+        reject()
+        await promise
+      } catch (e) {}
+    })
+   */
+
+  try {
+    reject()
+    await promise
+  } catch (e) {}
+  expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument()
+  expect(screen.getByRole('alert')).toHaveTextContent(errorMessage)
 })

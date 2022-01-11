@@ -4,10 +4,10 @@
 
 import * as React from 'react'
 import {render, screen, act} from '@testing-library/react'
-import {useCurrentPosition} from 'react-use-geolocation'
 import Location from '../../examples/location'
+import {useLocation} from 'components/use-location'
 
-jest.mock('react-use-geolocation')
+jest.mock('../../components/use-location')
 
 test('displays the users current location', async () => {
   const fakePosition = {
@@ -23,7 +23,7 @@ test('displays the users current location', async () => {
     setReturnValue = state[1]
     return state[0]
   }
-  useCurrentPosition.mockImplementation(useMockCurrentPosition)
+  useLocation.mockImplementation(useMockCurrentPosition)
 
   render(<Location />)
   expect(screen.getByLabelText(/loading/i)).toBeInTheDocument()

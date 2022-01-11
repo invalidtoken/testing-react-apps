@@ -46,3 +46,27 @@ test('display the user current location', () => {
 
   expect(screen.queryByLabelText('loading...')).not.toBeInTheDocument()
 })
+
+test('display user error on failure of retrieving location', () => {
+  const errorMessage = 'Geolocation is not supported or permission denied'
+  const fakeError = new Error(errorMessage)
+
+  let setErrorValue = null
+  function useMockedCurrentPositionHook() {
+    const [error, setError] = useState(undefined)
+    setErrorValue = setError
+    return [undefined, error]
+  }
+
+  useLocation.mockImplementation(useMockedCurrentPositionHook)
+  render(<Location />)
+
+  expect(screen.getByLabelText('loading...')).toBeInTheDocument()
+
+  act(() => {
+    setErrorValue(fakeError)
+  })
+
+  expect(screen.queryByLabelText('loading...')).not.toBeInTheDocument()
+  expect(screen.getByRole('alert')).toHaveTextContent(errorMessage)
+})

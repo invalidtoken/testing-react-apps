@@ -15,8 +15,6 @@ export const useLocation = () => {
     )
   }, [])
 
-  console.log(position)
-
   // NOTE: If you don't put your state update functions inside act(() => {})
   // the below useEffect will run after your assertions
 

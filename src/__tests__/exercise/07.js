@@ -2,36 +2,53 @@
 // http://localhost:3000/easy-button
 
 import * as React from 'react'
-import {getByRole, render as rtlRender, screen} from '@testing-library/react'
+import {render as rtlRender, screen} from '@testing-library/react'
 import {ThemeProvider} from '../../components/theme'
 import EasyButton from '../../components/easy-button'
 import userEvent from '@testing-library/user-event'
 
-function render(props) {
-  rtlRender(
-    <ThemeProvider {...props}>
-      <EasyButton />
-    </ThemeProvider>,
-  )
+// Mock window alert
+
+function render(ui, {theme = 'light', ...options} = {}) {
+  const Wrapper = ({children}) => {
+    return <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
+  }
+  return rtlRender(ui, {wrapper: Wrapper, ...options})
 }
 
-test('renders with the dark styles for the dark theme', () => {
-  render({initialTheme: 'dark'})
-  const button = screen.getByRole('button')
+describe('easy button renders with', () => {
+  window.alert = jest.fn()
 
-  expect(button).toHaveStyle({
-    backgroundColor: 'black',
-    color: 'white',
+  test('the dark styles for the dark theme', () => {
+    render(<EasyButton onClick={() => alert('that was easy')} />, {
+      theme: 'dark',
+    })
+    const button = screen.getByRole('button')
+
+    expect(button).toHaveStyle({
+      backgroundColor: 'black',
+      color: 'white',
+    })
+
+    userEvent.click(screen.getByRole('button'))
+    expect(window.alert).toHaveBeenCalledTimes(1)
+    expect(window.alert).toHaveBeenCalledWith('that was easy')
   })
-})
 
-test('renders with the light styles for the light theme', () => {
-  render({initialTheme: 'light'})
-  const button = screen.getByRole('button')
+  test('the light styles for the light theme', () => {
+    render(<EasyButton onClick={() => alert('that was easy')} />, {
+      theme: 'light',
+    })
+    const button = screen.getByRole('button')
 
-  expect(button).toHaveStyle({
-    backgroundColor: 'white',
-    color: 'black',
+    expect(button).toHaveStyle({
+      backgroundColor: 'white',
+      color: 'black',
+    })
+
+    userEvent.click(screen.getByRole('button'))
+    expect(window.alert).toHaveBeenCalledTimes(1)
+    expect(window.alert).toHaveBeenCalledWith('that was easy')
   })
 })
 
